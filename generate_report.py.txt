@@ -1,0 +1,31 @@
+# generate_report.py
+import requests
+import pandas as pd
+
+def fetch_top_models():
+    url = "https://huggingface.co/api/models"
+    params = {
+        "sort": "downloads",
+        "direction": -1,
+        "limit": 10
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Failed to fetch data:", response.status_code)
+        return []
+
+def generate_report(models):
+    data = {
+        "Model Name": [model["modelId"] for model in models],
+        "Downloads": [model["downloads"] for model in models]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv("top_10_models_report.csv", index=False)
+    print("Report generated: top_10_models_report.csv")
+
+if __name__ == "__main__":
+    models = fetch_top_models()
+    if models:
+        generate_report(models)
